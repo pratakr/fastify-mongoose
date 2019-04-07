@@ -3,7 +3,7 @@
 const fastifyPlugin = require("fastify-plugin");
 const mongoose = require("mongoose");
 
-const fixReferences = (fastify, schema) => {
+const fixReferences = (decorator, schema) => {
   Object.keys(schema).forEach(key => {
     if (schema[key].type === "ObjectId") {
       schema[key].type = mongoose.Schema.Types.ObjectId;
@@ -40,8 +40,11 @@ const fixReferences = (fastify, schema) => {
               validator: (v, cb) => {
                 decorator[member.ref]
                   .findById(v)
-                  .then(() => {
-                    cb(true);
+                  .then((doc) => {
+                    if(doc!==null)
+                      cb(true);
+                    else
+                      cb(false, `Post with ID ${v} does not exist in database!`);
                   })
                   .catch(() => {
                     /* istanbul ignore next */
