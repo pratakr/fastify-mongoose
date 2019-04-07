@@ -53,13 +53,6 @@ const fixReferences = (decorator, schema) => {
                     /* istanbul ignore next */
                     cb(false, `Post with ID ${v} does not exist in database!`);
                   });
-                // decorator[member.ref]
-                //   .findById(v,(err,doc)=>{
-                //     if(err) 
-                //       cb(false,`Post with ID ${v} does not exist in database!`)
-                //     else
-                //       cb(true)
-                //   })
               }
             };
           }
