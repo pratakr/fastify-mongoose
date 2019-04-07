@@ -3,7 +3,7 @@
 const fastifyPlugin = require("fastify-plugin");
 const mongoose = require("mongoose");
 
-const fixReferences = (fastify, schema) => {
+const fixReferences = (decorator, schema) => {
   Object.keys(schema).forEach(key => {
     if (schema[key].type === "ObjectId") {
       schema[key].type = mongoose.Schema.Types.ObjectId;
@@ -15,8 +15,11 @@ const fixReferences = (fastify, schema) => {
           validator: (v, cb) => {
             decorator[schema[key].ref]
               .findById(v)
-              .then(() => {
-                cb(true);
+              .then((doc) => {
+                if(doc!==null)
+                  cb(true);
+                else
+                  cb(false, `${schema[key].ref} with ID ${v} does not exist in database!`);
               })
               .catch(() => {
                 cb(
@@ -40,13 +43,23 @@ const fixReferences = (fastify, schema) => {
               validator: (v, cb) => {
                 decorator[member.ref]
                   .findById(v)
-                  .then(() => {
-                    cb(true);
+                  .then((doc) => {
+                    if(doc!==null)
+                      cb(true);
+                    else
+                      cb(false, `Post with ID ${v} does not exist in database!`);
                   })
                   .catch(() => {
                     /* istanbul ignore next */
                     cb(false, `Post with ID ${v} does not exist in database!`);
                   });
+                // decorator[member.ref]
+                //   .findById(v,(err,doc)=>{
+                //     if(err) 
+                //       cb(false,`Post with ID ${v} does not exist in database!`)
+                //     else
+                //       cb(true)
+                //   })
               }
             };
           }
