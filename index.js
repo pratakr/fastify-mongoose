@@ -16,7 +16,10 @@ const fixReferences = (decorator, schema) => {
             decorator[schema[key].ref]
               .findById(v)
               .then(() => {
-                cb(true);
+                if(doc!==null)
+                  cb(true);
+                else
+                  cb(false, `${schema[key].ref} with ID ${v} does not exist in database!`);
               })
               .catch(() => {
                 cb(
